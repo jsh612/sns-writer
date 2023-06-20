@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigurationModule } from './configure/configure.module';
 import { WriteModule } from './write/write.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
-  imports: [AuthModule, ConfigurationModule, WriteModule],
+  imports: [AuthModule, ConfigurationModule, WriteModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })
