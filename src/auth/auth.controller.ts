@@ -1,4 +1,5 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { AuthService } from './auth.service';
 
 /**
  * 1. 티스토리 인증
@@ -10,4 +11,11 @@ import { Controller } from '@nestjs/common';
  * 7. 글쓰기
  */
 @Controller('auth')
-export class AuthController {}
+export class AuthController {
+  constructor(private authService: AuthService) {}
+
+  @Get()
+  async getAuthentication() {
+    await this.authService.getAccessToken();
+  }
+}
