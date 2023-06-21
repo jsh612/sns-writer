@@ -10,6 +10,21 @@ export class WriteService {
     private drawService: DrawingService,
   ) {}
   async createPost(title: string) {
+    const createdSubjects = await this.chatService.createSubject(title);
+
+    const subjectList: { title: string }[] = JSON.parse(
+      createdSubjects.content,
+    );
+    const hour = 1000 * 60 * 60;
+
+    let time = 0;
+    subjectList.forEach(({ title }, index) => {
+      console.log(`create blog post with ${title}`);
+      time = new Date(new Date().getTime() + hour * (index + 1)).getTime();
+      console.log(time);
+    });
+    return;
+
     const createdContents = await this.chatService.createChatCompletion(
       title,
       'me',
