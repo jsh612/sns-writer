@@ -22,16 +22,22 @@ export class WriteService {
       titleEn: string;
     } = JSON.parse(createdContents.content);
 
-    const imageTag = `<img src="data:image/png;base64, ${await this.drawService.createImage(
-      contents.titleEn,
-    )}" alt="title"/>`;
+    let imageTag = '';
+
+    try {
+      imageTag = `<img src="data:image/png;base64, ${await this.drawService.createImage(
+        contents.titleEn,
+      )}" alt="title"/>`;
+    } catch (e) {
+      console.log(e);
+    }
 
     const param = {
       access_token:
         '8dc5ba83303b7d95be564543c27e0d35_06914afccfb98626d05461de1056dd10',
       output: 'json',
       blogName: 'fathory',
-      visibility: 3,
+      visibility: 0,
       category: 0,
       published: '',
       title: contents.title,
