@@ -58,10 +58,12 @@ export class WriteService {
           'TISTORY_ACCESS_TOKEN',
         );
 
+        const blogName = this.configService.get<string>('TISTORY_BLOG_NAME');
+
         const param = {
           access_token: accessToken,
           output: 'json',
-          blogName: 'fathory',
+          blogName: blogName ?? 'fathory',
           visibility: 0,
           category: CategoryEnum[category] ?? 0,
           published: time,
