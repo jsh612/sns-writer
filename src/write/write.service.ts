@@ -9,8 +9,7 @@ export class WriteService {
     private chatService: ChatService,
     private drawService: DrawingService,
   ) {}
-  async createPost() {
-    const title = `타입스크립트의 전망`;
+  async createPost(title: string) {
     const createdContents = await this.chatService.createChatCompletion(
       title,
       'me',
