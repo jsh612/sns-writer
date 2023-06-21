@@ -5,9 +5,16 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigurationModule } from './configure/configure.module';
 import { WriteModule } from './write/write.module';
 import { ChatModule } from './chat/chat.module';
+import { DrawingModule } from './drawing/drawing.module';
 
 @Module({
-  imports: [AuthModule, ConfigurationModule, WriteModule, ChatModule],
+  imports: [
+    AuthModule,
+    ConfigurationModule,
+    WriteModule,
+    ChatModule,
+    DrawingModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
