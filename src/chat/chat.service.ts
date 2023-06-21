@@ -23,7 +23,7 @@ export class ChatService {
     chatUserName: string,
   ): Promise<ChatCompletionResponseMessage> {
     try {
-      const realPrompt = `Please write a blog post about ${prompt} in detail. title is "${prompt}". There should be made up with introduction, body made up with 5 subtopics, conclusion. each subtopics must more than 500 words. response in korean and it made up with html`;
+      const realPrompt = `Please write a blog post about ${prompt} in detail. title is "${prompt}". There should be made up with introduction, body made up with 5 subtopics, conclusion. each subtopics must more than 500 words. response in korean and it made up with html.  If you have any questions related to programming, please answer them with the example code`;
 
       const completion = await this.openai.createChatCompletion({
         messages: [
@@ -52,7 +52,7 @@ export class ChatService {
         //   },
         // ],
         // function_call: 'auto',
-        temperature: 0.5,
+        temperature: 0,
       });
 
       return completion.data.choices[0].message;
@@ -63,7 +63,7 @@ export class ChatService {
 
   async createSubject(prompt: string): Promise<ChatCompletionResponseMessage> {
     try {
-      const realPrompt = `Please make 10 blogging topics about ${prompt}.`;
+      const realPrompt = `Please make 2 blogging topics about ${prompt}.`;
 
       const completion = await this.openai.createChatCompletion({
         messages: [
@@ -75,24 +75,7 @@ export class ChatService {
           },
         ],
         model: 'gpt-3.5-turbo-0613',
-        // functions: [
-        //   {
-        //     name: 'htmlFormatter',
-        //     description: 'html formatter',
-        //     parameters: {
-        //       type: 'object',
-        //       properties: {
-        //         content: {
-        //           type: 'string',
-        //           description: 'contents convert to SEO semantic html.',
-        //         },
-        //       },
-        //       required: ['content'],
-        //     },
-        //   },
-        // ],
-        // function_call: 'auto',
-        temperature: 0.5,
+        temperature: 1,
       });
 
       return completion.data.choices[0].message;
