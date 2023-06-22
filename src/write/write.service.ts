@@ -3,11 +3,11 @@ import { ChatService } from '../chat/chat.service';
 import { DrawingService } from '../drawing/drawing.service';
 import { format } from 'date-fns';
 import { ConfigService } from '@nestjs/config';
-import { CategoryEnum, CategoryType } from './category';
 import * as fs from 'fs';
 import axios from 'axios';
 import { AttachImageResponse } from './dto/attach-image.dto';
 import { XMLParser } from 'fast-xml-parser';
+import { Category, CreatePostInput } from './write.model';
 
 @Injectable()
 export class WriteService {
@@ -19,8 +19,9 @@ export class WriteService {
   ) {
     this.xmlParser = new XMLParser({ parseTagValue: false });
   }
-  async createPost(title: string, category: CategoryType) {
-    const createdSubjects = await this.chatService.createSubject(title);
+  async createPost({ title, searchText, category, tag }: CreatePostInput) {
+    const blogTitle = title;
+    const createdSubjects = await this.chatService.createSubject(searchText);
 
     const subjectList: { title: string }[] = JSON.parse(
       createdSubjects.content,
@@ -40,8 +41,9 @@ export class WriteService {
         console.log({ title, time });
         // return { title, time };
         const createdContents = await this.chatService.createChatCompletion(
-          title,
+          searchText,
           'me',
+          blogTitle,
         );
         let contents: {
           title: string;
@@ -61,39 +63,40 @@ export class WriteService {
           fs.writeFileSync(`./${contents.title}.json`, createdContents.content);
           // return new Promise<null>(null);
         }
-        let imageTag = '';
+        // let imageTag = '';
 
-        if (contents.titleEn) {
-          try {
-            const createdImage = await this.drawService.createImage(
-              contents.titleEn,
-            );
+        // if (contents.titleEn) {
+        //   try {
+        //     const createdImage = await this.drawService.createImage(
+        //       contents.titleEn,
+        //     );
 
-            const {
-              tistory: { url: imageUrl },
-            } = await this.attachFileByRemoteUrl(createdImage);
+        //     const {
+        //       tistory: { url: imageUrl },
+        //     } = await this.attachFileByRemoteUrl(createdImage);
 
-            imageTag = `<img src="${imageUrl}" alt="title"/>`;
-          } catch (e) {
-            console.log(e);
-          }
-        }
+        //     imageTag = `<img src="${imageUrl}" alt="title"/>`;
+        //   } catch (e) {
+        //     console.log(e);
+        //   }
+        // }
         const accessToken = this.configService.get<string>(
           'TISTORY_ACCESS_TOKEN',
         );
 
         const blogName = this.configService.get<string>('TISTORY_BLOG_NAME');
 
+        console.log('title=====>', title);
         const param = {
           access_token: accessToken,
           output: 'json',
-          blogName: blogName ?? 'fathory',
+          blogName: blogName ?? 'ewoos',
           visibility: this.configService.get<number>('POST_VISIBLE'),
-          category: CategoryEnum[category] ?? 0,
+          category: category ?? 0,
           published: time,
-          title: contents.title,
-          tag: contents.tag,
-          content: `${imageTag} ${contents.content}`,
+          title: blogTitle,
+          tag: tag.join(',') + contents.tag,
+          content: `${contents.content}`,
         };
 
         await axios.post('https://www.tistory.com/apis/post/write', param);
@@ -116,5 +119,17 @@ export class WriteService {
       },
     );
     return this.xmlParser.parse(response.data);
+  }
+
+  async getCategories(): Promise<Category[]> {
+    const access_token = this.configService.get<string>('TISTORY_ACCESS_TOKEN');
+    const output = 'json';
+    const blogName = this.configService.get<string>('TISTORY_BLOG_NAME');
+
+    const { data } = await axios.get(
+      `https://www.tistory.com/apis/category/list?access_token=${access_token}&output=${output}&blogName=${blogName}`,
+    );
+
+    return data.tistory.item.categories;
   }
 }

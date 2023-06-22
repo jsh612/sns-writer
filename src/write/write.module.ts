@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { WriteController } from './write.controller';
 import { WriteService } from './write.service';
 import { ChatModule } from '../chat/chat.module';
-import { DrawingService } from '../drawing/drawing.service';
-import { SubjectService } from '../subject/subject.service';
+import { WriteResolver } from './write.resolver';
+import { DrawingModule } from '../drawing/drawing.module';
+import { SubjectModule } from '../subject/subject.module';
 
 @Module({
-  imports: [ChatModule],
+  imports: [ChatModule, DrawingModule, SubjectModule],
   controllers: [WriteController],
-  providers: [WriteService, DrawingService, SubjectService],
+  providers: [WriteService, WriteResolver],
 })
 export class WriteModule {}

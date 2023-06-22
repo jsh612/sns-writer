@@ -7,9 +7,16 @@ import { WriteModule } from './write/write.module';
 import { ChatModule } from './chat/chat.module';
 import { DrawingModule } from './drawing/drawing.module';
 import { SubjectModule } from './subject/subject.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 @Module({
   imports: [
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      playground: true,
+      autoSchemaFile: true,
+    }),
     AuthModule,
     ConfigurationModule,
     WriteModule,

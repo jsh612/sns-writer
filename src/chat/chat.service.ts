@@ -21,9 +21,10 @@ export class ChatService {
   async createChatCompletion(
     prompt: string,
     chatUserName: string,
+    title?: string,
   ): Promise<ChatCompletionResponseMessage> {
     try {
-      const realPrompt = `Please write a blog post about ${prompt} in detail. title is "${prompt}". There should be made up with introduction, body made up with 5 subtopics, conclusion. each subtopics must more than 500 words. response in korean and it made up with html.  If you have any questions related to programming, your answer must have example code with <pre><code> tags. Please write a answer with a new line in the same format as "abc\\n" + "def"`;
+      const realPrompt = `Please write a blog post about ${prompt} in detail. title is "${title}". There should be made up with introduction, including subtopics, conclusion. each subtopics must more than 500 words. response in korean and it made up with html.  If you have any questions related to programming, your answer must have example code with <pre><code> tags. Please write a answer with a new line in the same format as "abc\\n" + "def"`;
 
       const completion = await this.openai.createChatCompletion({
         messages: [
@@ -41,7 +42,7 @@ export class ChatService {
         //     description: 'html formatter',
         //     parameters: {
         //       type: 'object',
-        //       properties: {
+        //       properties: {ㄹ
         //         content: {
         //           type: 'string',
         //           description: 'contents convert to SEO semantic html.',
@@ -77,7 +78,7 @@ export class ChatService {
           },
         ],
         model: 'gpt-3.5-turbo-0613',
-        temperature: 1,
+        temperature: 0,
       });
 
       return completion.data.choices[0].message;
