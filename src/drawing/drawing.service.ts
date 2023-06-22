@@ -17,10 +17,10 @@ export class DrawingService {
   async createImage(question = '') {
     const response = await this.openai.createImage({
       prompt: question,
-      response_format: 'b64_json',
+      response_format: 'url',
       size: '512x512',
       n: 1,
     });
-    return response.data.data[0].b64_json;
+    return response.data.data[0].url;
   }
 }

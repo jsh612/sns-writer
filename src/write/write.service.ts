@@ -6,14 +6,19 @@ import { ConfigService } from '@nestjs/config';
 import { CategoryEnum, CategoryType } from './category';
 import * as fs from 'fs';
 import axios from 'axios';
+import { AttachImageResponse } from './dto/attach-image.dto';
+import { XMLParser } from 'fast-xml-parser';
 
 @Injectable()
 export class WriteService {
+  private xmlParser: XMLParser;
   constructor(
     private chatService: ChatService,
     private drawService: DrawingService,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.xmlParser = new XMLParser({ parseTagValue: false });
+  }
   async createPost(title: string, category: CategoryType) {
     const createdSubjects = await this.chatService.createSubject(title);
 
@@ -60,9 +65,15 @@ export class WriteService {
 
         if (contents.titleEn) {
           try {
-            imageTag = `<img src="data:image/png;base64, ${await this.drawService.createImage(
+            const createdImage = await this.drawService.createImage(
               contents.titleEn,
-            )}" alt="title"/>`;
+            );
+
+            const {
+              tistory: { url: imageUrl },
+            } = await this.attachFileByRemoteUrl(createdImage);
+
+            imageTag = `<img src="${imageUrl}" alt="title"/>`;
           } catch (e) {
             console.log(e);
           }
@@ -88,5 +99,22 @@ export class WriteService {
         await axios.post('https://www.tistory.com/apis/post/write', param);
       }),
     );
+  }
+
+  async attachFileByRemoteUrl(url: string): Promise<AttachImageResponse> {
+    const imageStream = await axios.get(url, { responseType: 'stream' });
+    const response = await axios.postForm(
+      `https://www.tistory.com/apis/post/attach`,
+      {
+        uploadedfile: imageStream.data,
+        blogName: this.configService.get<string>('TISTORY_BLOG_NAME'),
+        access_token: this.configService.get<string>('TISTORY_ACCESS_TOKEN'),
+      },
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        responseType: 'json',
+      },
+    );
+    return this.xmlParser.parse(response.data);
   }
 }
