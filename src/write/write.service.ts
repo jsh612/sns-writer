@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
 import { ChatService } from '../chat/chat.service';
 import { DrawingService } from '../drawing/drawing.service';
 import { format } from 'date-fns';
 import { ConfigService } from '@nestjs/config';
 import { CategoryEnum, CategoryType } from './category';
+import * as fs from 'fs';
+import axios from 'axios';
 
 @Injectable()
 export class WriteService {
@@ -23,7 +24,7 @@ export class WriteService {
 
     let time = '';
 
-    let i = 1;
+    let i = 0;
 
     return await Promise.all(
       subjectList.map(async ({ title }) => {
@@ -37,22 +38,34 @@ export class WriteService {
           title,
           'me',
         );
-
-        const contents: {
+        let contents: {
           title: string;
           tag: string;
           content: string;
           titleEn: string;
-        } = JSON.parse(createdContents.content);
-
-        let imageTag = '';
-
+        } = {
+          titleEn: title,
+          tag: '',
+          title: title,
+          content: createdContents.content,
+        };
         try {
-          imageTag = `<img src="data:image/png;base64, ${await this.drawService.createImage(
-            contents.titleEn,
-          )}" alt="title"/>`;
+          contents = JSON.parse(createdContents.content);
         } catch (e) {
           console.log(e);
+          fs.writeFileSync(`./${contents.title}.json`, createdContents.content);
+          // return new Promise<null>(null);
+        }
+        let imageTag = '';
+
+        if (contents.titleEn) {
+          try {
+            imageTag = `<img src="data:image/png;base64, ${await this.drawService.createImage(
+              contents.titleEn,
+            )}" alt="title"/>`;
+          } catch (e) {
+            console.log(e);
+          }
         }
         const accessToken = this.configService.get<string>(
           'TISTORY_ACCESS_TOKEN',
@@ -64,7 +77,7 @@ export class WriteService {
           access_token: accessToken,
           output: 'json',
           blogName: blogName ?? 'fathory',
-          visibility: 0,
+          visibility: this.configService.get<number>('POST_VISIBLE'),
           category: CategoryEnum[category] ?? 0,
           published: time,
           title: contents.title,
@@ -72,7 +85,6 @@ export class WriteService {
           content: `${imageTag} ${contents.content}`,
         };
 
-        console.log(contents.content);
         await axios.post('https://www.tistory.com/apis/post/write', param);
       }),
     );

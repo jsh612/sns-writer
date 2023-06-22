@@ -21,7 +21,6 @@ export class DrawingService {
       size: '512x512',
       n: 1,
     });
-    console.log(response.data.data, response.data.data[0]);
     return response.data.data[0].b64_json;
   }
 }
