@@ -1,7 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { WriteService } from './write.service';
 import { SubjectService } from '../subject/subject.service';
-import { CategoryTypeEnum } from './write.model';
+import { WriteService } from './write.service';
 
 @Controller('write')
 export class WriteController {
@@ -13,8 +12,8 @@ export class WriteController {
   @Get()
   async createPost(
     @Query('title') title: string,
-    @Query('title') searchText: string,
-    @Query('category') category: CategoryTypeEnum,
+    @Query('searchText') searchText: string,
+    @Query('category') category: string,
     @Query('tag') tag: string[],
   ) {
     await this.writeService.createPost({ title, searchText, category, tag });

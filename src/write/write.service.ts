@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import { format } from 'date-fns';
+import { XMLParser } from 'fast-xml-parser';
 import { ChatService } from '../chat/chat.service';
 import { DrawingService } from '../drawing/drawing.service';
-import { format } from 'date-fns';
-import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
-import axios from 'axios';
 import { AttachImageResponse } from './dto/attach-image.dto';
-import { XMLParser } from 'fast-xml-parser';
 import { Category, CreatePostInput } from './write.model';
 
 @Injectable()
@@ -39,12 +38,13 @@ export class WriteService {
           'yyyy-MM-dd HH:mm:ss',
         );
         console.log({ title, time });
-        // return { title, time };
+
         const createdContents = await this.chatService.createChatCompletion(
           searchText,
           'me',
-          blogTitle,
+          title,
         );
+
         let contents: {
           title: string;
           tag: string;
@@ -60,7 +60,6 @@ export class WriteService {
           contents = JSON.parse(createdContents.content);
         } catch (e) {
           console.log(e);
-          fs.writeFileSync(`./${contents.title}.json`, createdContents.content);
           // return new Promise<null>(null);
         }
         // let imageTag = '';
@@ -86,13 +85,12 @@ export class WriteService {
 
         const blogName = this.configService.get<string>('TISTORY_BLOG_NAME');
 
-        console.log('title=====>', title);
         const param = {
           access_token: accessToken,
           output: 'json',
           blogName: blogName ?? 'ewoos',
           visibility: this.configService.get<number>('POST_VISIBLE'),
-          category: category ?? 0,
+          category: category ?? 1139820,
           published: time,
           title: blogTitle,
           tag: tag.join(',') + contents.tag,

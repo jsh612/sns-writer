@@ -1,7 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { WriteService } from './write.service';
-import { Category, CategoryTypeEnum } from './write.model';
 import { SubjectService } from '../subject/subject.service';
+import { Category } from './write.model';
+import { WriteService } from './write.service';
 
 @Resolver()
 export class WriteResolver {
@@ -15,8 +15,8 @@ export class WriteResolver {
     @Args('title', { description: '제목', type: () => String }) title: string,
     @Args('searchText', { description: 'Gpt 검색어', type: () => String })
     searchText: string,
-    @Args('category', { description: '카테고리', type: () => CategoryTypeEnum })
-    category: CategoryTypeEnum,
+    @Args('category', { description: '카테고리', type: () => String })
+    category: string,
     @Args('tag', { description: 'tag', type: () => [String] })
     tag: string[],
   ) {

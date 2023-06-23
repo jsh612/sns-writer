@@ -23,8 +23,8 @@ export class CreatePostInput {
   @Field(() => String, { description: 'searchText' })
   searchText: string;
 
-  @Field(() => CategoryTypeEnum, { description: 'category' })
-  category: CategoryTypeEnum;
+  @Field(() => String, { description: 'category' })
+  category: string;
 
   @Field(() => [String], { description: 'tag', nullable: true })
   tag?: string[];
